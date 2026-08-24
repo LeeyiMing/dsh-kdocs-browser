@@ -2,6 +2,11 @@
   "name": "dsh-kdocs-browser",
   "version": "0.1.0",
   "description": "DSH Web 侧栏：本机 kdocs-cli 浏览金山文档",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LeeyiMing/dsh-kdocs-browser.git"
+  },
   "type": "module",
   "main": "lib/index.js",
   "exports": {

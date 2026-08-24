@@ -120,4 +120,4 @@ dsh plugin --profile web remove dsh-kdocs-browser
 
 ## 许可证
 
-尚无 LICENSE 文件。若希望与 dsh-web-ui 一致选 Apache-2.0；与 dsh-better-sidebar 一致选 MIT。公开或发 npm 前请填写 `package.json` 的 `license` 与 `repository`。
+本仓库以 [Apache-2.0](LICENSE) 授权。
