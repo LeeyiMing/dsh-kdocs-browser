@@ -23,7 +23,7 @@ DSH Web 侧栏插件：用本机 [kdocs-cli](https://www.kdocs.cn/latest) 浏览
 - `web` profile 上 `dsh web` 可正常启动。
 - 已安装 [dsh-better-sidebar](https://github.com/omdsh-dev/DSH-better-sidebar)（peer）。右侧栏 `+` 菜单出现 **金山文档**。
 - 本机 `kdocs-cli`（例如 `~/.local/bin/kdocs-cli`），并已 `kdocs-cli auth login`。
-- 引用到问答需要已打开的会话。可选用户技能 `~/.dsh/skills/kdocs`（需有 `SKILL.md`）有助于模型处理 `[kdocs]` 块；**浏览不依赖 Skill**。
+- 对话里让模型操作云文档时，必须把官方技能放到 DSH 用户技能目录 `~/.dsh/skills/kdocs/`（目录名与 `SKILL.md` 里的 `name: kdocs` 一致）。装到 Cursor 或其他目录时，DSH 会话读不到技能描述。**侧栏浏览不依赖 Skill。**
 
 仅从源码构建时需要 Node.js >= 22。
 
@@ -53,7 +53,7 @@ dsh plugin --profile web add github:OWNER/dsh-kdocs-browser
 
 ![从右侧栏打开金山文档 Skill](docs/screenshots/kdocs-skill-menu.png)
 
-弹窗里点 **复制指令**，贴到 Agent 对话即可。官方示例（zip 版本号会变，以弹窗为准）：
+弹窗里点 **复制指令**，贴到 **DSH Web 的对话**（不要贴到 Cursor 聊天，除非你只给 Cursor 用）。官方示例（zip 版本号会变，以弹窗为准）：
 
 ```
 https://wpsai.wpscdn.cn/skillhub/pro/v2.6.3/kdocs.zip 下载 zip 包并 unzip 解压，帮我安装这个 skill，然后运行 kdocs-cli auth login 完成认证。
@@ -61,9 +61,21 @@ https://wpsai.wpscdn.cn/skillhub/pro/v2.6.3/kdocs.zip 下载 zip 包并 unzip �
 
 ![金山文档 Skill 安装指令](docs/screenshots/kdocs-skill-install.png)
 
-Skill 解压后应出现 `~/.dsh/skills/kdocs/SKILL.md`。装好后自检：
+解压后必须把整个技能目录放到 DSH 能读的位置，目录名必须是 `kdocs`：
+
+```text
+~/.dsh/skills/kdocs/SKILL.md
+~/.dsh/skills/kdocs/references/
+~/.dsh/skills/kdocs/scripts/
+```
+
+Windows：`%USERPROFILE%\.dsh\skills\kdocs\SKILL.md`。若解压位置不在此目录，把整个 `kdocs` 技能文件夹移过去即可。
+
+装好后自检：
 
 ```sh
+ls ~/.dsh/skills/kdocs/SKILL.md
+head -5 ~/.dsh/skills/kdocs/SKILL.md   # 应看到 name: kdocs
 kdocs-cli version
 ```
 
@@ -71,7 +83,7 @@ WSL 请把 `~/.local/bin` 加入 `PATH`，否则 `dsh web` 可能找不到 CLI�
 
 需要最新版时：再登录金山文档，从右侧栏 **金山文档 Skill** 取当前 zip 或安装指令。弹窗里的 **仅复制 token** 含账号权限，不要写进 README、聊天记录或 git；认证优先 `kdocs-cli auth login`。泄露则在该页重置 token。
 
-没有 Skill 也可以在侧栏浏览；没有 CLI / 未登录时，本插件侧栏会出示与上文相同的命令。
+没有 Skill 也可以在侧栏浏览；没有 CLI / 未登录时，本插件侧栏会出示与上文相同的命令。侧栏提示「未检测到 kdocs Skill」只表示 `~/.dsh/skills/kdocs/SKILL.md` 不存在，不挡浏览。
 
 ### 本地 clone（开发）
 
@@ -96,7 +108,7 @@ dsh plugin --profile web remove dsh-kdocs-browser
 ## 使用
 
 1. 启动 `dsh web`。右侧栏 `+` → **金山文档**。
-2. 未装 CLI / 未登录时按面板提示处理（命令与「安装」一节相同）。缺 Skill 只提示，不影响浏览。
+2. 未装 CLI / 未登录时按面板提示处理。缺 Skill 时把官方技能放到 `~/.dsh/skills/kdocs/`；不挡浏览。
 3. 单击文件夹展开，单击文件预览。`.otl` 用 **编辑 / 保存**。
 4. 行尾 `@` 或 **引用到问答**。划选正文再 **加入问答** 会写入 `excerpt`。
 5. 写完问题后发送。发送前删掉 `@云文档/…` 则不会追加 `[kdocs]`。
