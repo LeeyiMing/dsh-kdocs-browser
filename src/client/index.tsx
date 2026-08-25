@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createElement } from 'react'
 import { kindOf, TypeIcon } from './icons.tsx'
-import { renderMarkdown } from './markdown.ts'
+import { renderMarkdown, sheetRangeToMarkdown } from './markdown.ts'
 import { appendToDraft, installKdocsSendHook, rememberRef } from './draft.ts'
 
 export const inject = ['betterSidebar']
@@ -147,9 +147,10 @@ async function readFileWithPoll(
       ? data.warnings.filter((entry): entry is string => typeof entry === 'string').join('\n')
       : ''
     const format = typeof data.content_format === 'string' ? data.content_format : ''
+    const sheetRange = format === 'sheet_range'
     return {
-      content: formatContent(data),
-      markdown: format === 'markdown' || (typeof data.content === 'string' && format !== 'sheet_range'),
+      content: sheetRange ? sheetRangeToMarkdown(data.content) : formatContent(data),
+      markdown: sheetRange || format === 'markdown' || (typeof data.content === 'string' && format !== 'kdc'),
       warning: warnings || undefined,
     }
   }

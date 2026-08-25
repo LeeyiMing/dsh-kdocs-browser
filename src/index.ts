@@ -33,7 +33,6 @@ async function readJson(req: IncomingMessage): Promise<JsonMap> {
 async function hasKdocsSkill(): Promise<boolean> {
   const candidates = [
     join(homedir(), '.dsh', 'skills', 'kdocs', 'SKILL.md'),
-    join(homedir(), '.dsh', 'skills', 'kdocs', 'SKILL.md'),
     join(homedir(), '.cursor', 'skills', 'kdocs', 'SKILL.md'),
   ]
   for (const path of candidates) {

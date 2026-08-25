@@ -15,7 +15,7 @@ DSH Web 侧栏插件：用本机 [kdocs-cli](https://www.kdocs.cn/latest) 浏览
 | 重命名 | 双击；保留后缀 |
 | 移动 | 拖到文件夹或根目录投放区。文件走 `drive move-file`。云盘接口不能直接移动文件夹；插件在目标重建文件夹并迁入子项。源位置可能留下空文件夹（CLI 无删除） |
 | 新建 | 新建文件夹；新建空 `.otl` |
-| 预览 / 编辑 | 支持的文件做 Markdown 预览；`.otl` 用 `otl.insert-content`（`mode=replace`）保存 |
+| 预览 / 编辑 | 文档类（`.otl` / `.docx` / `.doc` / `.wps` / `.pdf`）转 Markdown 预览；表格（`.xlsx` / `.ksheet`）把云 API 返回的首屏区域渲染成表格；`.otl` 用 `otl.insert-content`（`mode=replace`）保存。`.md` / `.txt` 云 API 不支持直接读取，需先转 `.otl` 或下载原文 |
 | 引用到问答 | 输入框插入 `@云文档/名称`。发送时若标记仍在，末尾追加短块 `[kdocs]`（`name` / `file_id` / `type` / `url`；划选另有 `excerpt`，有长度上限） |
 
 ## 环境要求
@@ -31,6 +31,12 @@ DSH Web 侧栏插件：用本机 [kdocs-cli](https://www.kdocs.cn/latest) 浏览
 
 首次先装本插件，再按官方「金山文档 Skill」指令安装 CLI / Skill 并登录。侧栏缺依赖时会显示同一组命令。
 
+> **想让 Agent / AI 直接安装？** 把这个仓库链接发给对话里的 Agent（DSH、Cursor 等）即可，它自己会 `git clone`（或 `link:`）并执行下面的 `dsh plugin --profile web add` 命令：
+>
+> ```
+> https://github.com/LeeyiMing/dsh-kdocs-browser
+> ```
+
 ### 1. 插件
 
 ```sh
@@ -40,10 +46,10 @@ dsh plugin --profile web add dsh-better-sidebar@latest
 再安装本插件（仓库公开且已提交 `lib/` 后用 GitHub；开发用 `link:`）。Host 半区变更后重启 `dsh web`。
 
 ```sh
-dsh plugin --profile web add github:OWNER/dsh-kdocs-browser
+dsh plugin --profile web add github:LeeyiMing/dsh-kdocs-browser
 ```
 
-把 `OWNER` 换成仓库所有者。`dsh plugin add` 不会跑 `tsdown`；发布树必须包含 `lib/index.js` 和 `lib/client.js`。
+`dsh plugin add` 不会跑 `tsdown`；发布树必须包含 `lib/index.js` 和 `lib/client.js`（已提交）。
 
 本插件**尚未发布到 npm**。若本机还装着旧包名 `dsh-clouddoc-browser`，先 `dsh plugin --profile web remove dsh-clouddoc-browser` 再按新名安装。
 
@@ -88,7 +94,7 @@ WSL 请把 `~/.local/bin` 加入 `PATH`，否则 `dsh web` 可能找不到 CLI�
 ### 本地 clone（开发）
 
 ```sh
-git clone https://github.com/OWNER/dsh-kdocs-browser.git
+git clone https://github.com/LeeyiMing/dsh-kdocs-browser.git
 cd dsh-kdocs-browser
 npm install
 npm run build
@@ -126,6 +132,8 @@ dsh plugin --profile web remove dsh-kdocs-browser
 
 - 文件夹的 `move-file` / `copy-file` 会被云盘拒绝（`400100`）。重建 + 递归是变通；空文件夹需在网页删除。
 - 侧栏内写入以 `.otl` 为主。文字 / 表格 / 演示仍以预览或浏览器打开为主。
+- **`.md` / `.txt` 无法在线读取**：云 API 返回 `400001 暂不支持直接读取`（`read_file` 只覆盖 docx/doc/pdf/wps/otl/表格/多维表/演示）。要预览需先转成 `.otl`；或通过 `download_file` 拿到临时下载链接，但该链接需登录凭据、当前插件不代理下载。`.md` 上传后会被当作文本文件存储，读取同样受限。
+- **表格预览只渲染首屏区域**（`read_file` 默认 `sheet_range`），单表返回数据有限；`warnings` 会提示实际读取范围。整表精细读取请用 `sheet.*` 工具或 `kdocs-cli drive read-file` 传 `sheet_range`。
 - `@云文档/名称` 不是原生 mention 芯片。
 - Agent PATH 不一定包含 `~/.local/bin`；浏览走 Host 进程 PATH，不是模型沙箱。
 - 尚无设置卡（`settings.plugin.item`）；尚无测试 / typecheck 脚本。

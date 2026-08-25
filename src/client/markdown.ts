@@ -216,5 +216,60 @@ function splitTableRow(line: string): string[] {
   const trimmed = line.trim()
   const inner = trimmed.startsWith('|') ? trimmed.slice(1) : trimmed
   const withoutTrailing = inner.endsWith('|') ? inner.slice(0, -1) : inner
-  return withoutTrailing.split('|').map((cell) => cell.trim())
+  // Split on unescaped pipes only (`\|` stays inside the cell as a literal `|`).
+  const cells: string[] = []
+  let current = ''
+  let escaped = false
+  for (const char of withoutTrailing) {
+    if (escaped) {
+      current += char
+      escaped = false
+    } else if (char === '\\') {
+      escaped = true
+    } else if (char === '|') {
+      cells.push(current.trim())
+      current = ''
+    } else {
+      current += char
+    }
+  }
+  if (escaped) current += '\\'
+  cells.push(current.trim())
+  return cells
+}
+
+/**
+ * Convert the structured `content_format: "sheet_range"` payload from
+ * `drive read-file` into a Markdown table so the sidebar preview can render
+ * spreadsheets (xlsx / ksheet) as a real table instead of raw JSON.
+ */
+export function sheetRangeToMarkdown(content: unknown): string {
+  const obj = content as {
+    range_data?: { detail?: { rangeData?: Array<Record<string, unknown>> } }
+    sheets_info?: { detail?: { sheetsInfo?: Array<{ sheetName?: string }> } }
+  }
+  const cells = obj?.range_data?.detail?.rangeData
+  if (!Array.isArray(cells) || cells.length === 0) return '(空表格)'
+
+  let maxRow = 0
+  let maxCol = 0
+  const parsed = cells.map((cell) => {
+    const row = Number(cell.originRow ?? cell.rowFrom ?? 0) || 0
+    const col = Number(cell.originCol ?? cell.colFrom ?? 0) || 0
+    if (row > maxRow) maxRow = row
+    if (col > maxCol) maxCol = col
+    return { row, col, text: String(cell.cellText ?? '') }
+  })
+  const grid: string[][] = Array.from({ length: maxRow + 1 }, () => Array(maxCol + 1).fill(''))
+  for (const cell of parsed) {
+    grid[cell.row][cell.col] = cell.text.replace(/\r?\n/g, ' ').replace(/\|/g, '\\|')
+  }
+  const lines = grid.map((row) => `| ${row.join(' | ')} |`)
+  const separator = `| ${grid[0].map(() => '---').join(' | ')} |`
+
+  const sheetName = Array.isArray(obj?.sheets_info?.detail?.sheetsInfo)
+    ? obj.sheets_info?.detail?.sheetsInfo[0]?.sheetName
+    : undefined
+  const heading = sheetName ? `> 工作表：${sheetName}\n\n` : ''
+  return `${heading}${[lines[0], separator, ...lines.slice(1)].join('\n')}`
 }
