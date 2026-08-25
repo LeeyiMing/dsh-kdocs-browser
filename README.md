@@ -1,10 +1,16 @@
 # dsh-kdocs-browser
 
-DSH Web 侧栏插件：用本机 [kdocs-cli](https://www.kdocs.cn/latest) 浏览金山文档 / WPS 云文档，并把文件引用写进对话输入框。
+> **把你的金山文档 / WPS 云文档，变成 AI 的"第二大脑"。**
 
-通过 [dsh-better-sidebar](https://github.com/omdsh-dev/DSH-better-sidebar) 注册 Tab（`ctx.betterSidebar.registerTab`）。认证只走 kdocs-cli（系统钥匙串）。插件不保存 Cookie / Token，也不修改 DSH 源码。
+dsh-kdocs-browser 是一款 DSH Web 侧栏插件：它用本机 [kdocs-cli](https://www.kdocs.cn/latest) 把**金山文档 / WPS 云文档**直接搬进你的对话工作流——在侧栏浏览、预览、引用云盘里的每一份文件，并让 **AI 读懂、编辑、操作、管理你的云文档**。
 
-侧栏只覆盖浏览、预览、部分编辑和引用。kdocs-cli 本身能力更广（云盘文件、智能文档、表格、多维表格、表单、演示、在线文字、PDF、知识库等）。装好用户技能 `kdocs` 后，Agent 在对话里直接调用同一套 CLI 读写云文档；侧栏引用的 `[kdocs]` 块给模型 `file_id` / 链接，便于接着用 CLI 打开对应文件。没有 Skill 时仍可浏览，模型不会自动走这套云文档工具。
+**给 AI 一双能读写云文档的手。** 装好官方用户技能 `kdocs` 后，你只需在对话里说一句，AI 就能直接调用同一套 CLI：读长文、改正文、整理表格、生成演示、建文件夹、移动重命名……文档从"打不开的云端文件"变成"AI 随手可用的内容资产"。
+
+**从浏览到协作，一气呵成。** 侧栏里点开文件即可预览（Markdown 渲染，含文档内图片）；把文件拖进输入框，发送时自动带上 `[kdocs]` 引用块（`file_id` / 链接），模型据此精准定位并接着操作对应文件——AI 看到的不再是文件名，而是可以读写的那份文档本身。
+
+通过 [dsh-better-sidebar](https://github.com/omdsh-dev/DSH-better-sidebar) 注册 Tab（`ctx.betterSidebar.registerTab`）。认证只走 kdocs-cli（系统钥匙串），插件不保存 Cookie / Token，也不修改 DSH 源码——安全地把云端文档交给 AI，而不是把权限交给它。
+
+> 侧栏本身覆盖浏览、预览、部分编辑和引用；kdocs-cli 能力更广（云盘文件、智能文档、表格、多维表格、表单、演示、在线文字、PDF、知识库等）。装好用户技能 `kdocs` 后，Agent 在对话里直接调用同一套 CLI 读写云文档；侧栏引用的 `[kdocs]` 块给模型 `file_id` / 链接，便于接着用 CLI 打开对应文件。没有 Skill 时仍可浏览，模型不会自动走这套云文档工具。
 
 ## 能力
 
