@@ -467,6 +467,8 @@ export function apply(ctx: {
             else payload.url = linkUrl
             if (taskId) payload.task_id = taskId
             payload.format = 'markdown'
+            // 把文档内的图片/附件转换为可下载的签名 URL（否则 markdown 里图片是空的 ![image]()）
+            payload.enable_upload_medias = true
             const raw = await kdocs(['drive', 'read-file', JSON.stringify(payload), '--compact'], 120000)
             const data = deepestData(raw)
             writeJson(res, 200, data)
