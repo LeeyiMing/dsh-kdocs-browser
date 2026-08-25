@@ -15,7 +15,7 @@ DSH Web 侧栏插件：用本机 [kdocs-cli](https://www.kdocs.cn/latest) 浏览
 | 重命名 | 双击；保留后缀 |
 | 移动 | 拖到文件夹或根目录投放区。文件走 `drive move-file`。云盘接口不能直接移动文件夹；插件在目标重建文件夹并迁入子项。源位置可能留下空文件夹（CLI 无删除） |
 | 新建 | 新建文件夹；新建空 `.otl` |
-| 预览 / 编辑 | 文档类（`.otl` / `.docx` / `.doc` / `.wps` / `.pdf`）转 Markdown 预览；表格（`.xlsx` / `.ksheet`）把云 API 返回的首屏区域渲染成表格；`.otl` 用 `otl.insert-content`（`mode=replace`）保存。`.md` / `.txt` 云 API 不支持直接读取，需先转 `.otl` 或下载原文 |
+| 预览 / 编辑 | 文档类（`.otl` / `.docx` / `.doc` / `.wps` / `.pdf`）转 Markdown 预览，文档内图片转成可下载的签名 URL 并显示；表格（`.xlsx` / `.ksheet`）把云 API 返回的首屏区域渲染成表格；`.otl` 用 `otl.insert-content`（`mode=replace`）保存。`.md` / `.txt` 云 API 不支持直接读取，需先转 `.otl` 或下载原文 |
 | 引用到问答 | 输入框插入 `@云文档/名称`。发送时若标记仍在，末尾追加短块 `[kdocs]`（`name` / `file_id` / `type` / `url`；划选另有 `excerpt`，有长度上限） |
 
 ## 环境要求
@@ -147,6 +147,8 @@ dsh plugin --profile web remove dsh-kdocs-browser
 - 侧栏内写入以 `.otl` 为主。文字 / 表格 / 演示仍以预览或浏览器打开为主。
 - **`.md` / `.txt` 无法在线读取**：云 API 返回 `400001 暂不支持直接读取`（`read_file` 只覆盖 docx/doc/pdf/wps/otl/表格/多维表/演示）。要预览需先转成 `.otl`；或通过 `download_file` 拿到临时下载链接，但该链接需登录凭据、当前插件不代理下载。`.md` 上传后会被当作文本文件存储，读取同样受限。
 - **表格预览只渲染首屏区域**（`read_file` 默认 `sheet_range`），单表返回数据有限；`warnings` 会提示实际读取范围。整表精细读取请用 `sheet.*` 工具或 `kdocs-cli drive read-file` 传 `sheet_range`。
+- **文档图片是带签名的临时 URL**：`read_file` 需传 `enable_upload_medias=true` 才把附件转成 URL，且这些 URL 带 `Expires` 有效期，过期后预览里的图片会失效（重新打开文档即可刷新）。图片较多的文档读取可能超过 25 秒，客户端会自动用 `task_id` 轮询续跑。
+- 侧栏不代理图片下载：签名 URL 由浏览器直接加载，不会经过 Host。
 - `@云文档/名称` 不是原生 mention 芯片。
 - Agent PATH 不一定包含 `~/.local/bin`；浏览走 Host 进程 PATH，不是模型沙箱。
 - 尚无设置卡（`settings.plugin.item`）；尚无测试 / typecheck 脚本。
